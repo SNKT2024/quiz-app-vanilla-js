@@ -23,6 +23,7 @@
       <div class="quiz-container">
         <div class="quiz-header">
           <h2 class="quiz-topic">TOPIC</h2>
+
           <p class="question-counter">
             Question <span class="current-question">1</span> of
             <span class="total-questions">5</span>
@@ -34,14 +35,13 @@
         </div>
         <ul class="options-list">
           <!-- Options will be dynamically inserted here by JS -->
-          <li><button class="option">Option 1</button></li>
-          <li><button class="option">Option 2</button></li>
-          <li><button class="option">Option 3</button></li>
-          <li><button class="option">Option 4</button></li>
         </ul>
         <div class="quiz-footer">
-          <button class="next-btn">Next</button>
+          <button class="next-btn hidden">Next</button>
         </div>
+        <h3 class="quiz-score hidden">
+          SCORE: <span class="score">0</span>/10
+        </h3>
       </div>
     </main>
   </body>

@@ -1,7 +1,12 @@
 // DOM
 
 const startBtn = document.querySelector(".topic-btn");
-
+const optionsList = document.querySelector(".options-list");
+const nextBtn = document.querySelector(".next-btn");
+const score = document.querySelector(".score");
+let currentTopic = null;
+let currentQuestionIndex = 0;
+let currentScore = 0;
 const questions = [
   {
     topic: "html",
@@ -130,36 +135,85 @@ const questions = [
 ];
 
 const displayQuiz = function () {
-  const topic_no = document.querySelector("#topic-select").value;
-  const topic = questions[topic_no];
-  const question_no = 0;
+  const topicIndex = document.querySelector("#topic-select").value;
+  currentTopic = questions[topicIndex];
+  currentQuestionIndex = 0;
+  displayQuestion();
+  document.querySelector(".quiz-score").classList.remove("hidden");
+};
+
+const displayQuestion = function () {
+  nextBtn.classList.add("hidden");
+  const questionData = currentTopic.questions[currentQuestionIndex];
   //   Topic Name
-  document.querySelector(".quiz-topic").textContent = topic.topic.toUpperCase();
-
+  document.querySelector(".quiz-topic").textContent =
+    currentTopic.topic.toUpperCase();
   //   Question No
-  document.querySelector(".current-question").textContent =
-    topic.questions[question_no].id;
-
-  // Question
-  document.querySelector(".question-text").textContent =
-    topic.questions[question_no].question;
-
-  // Options
-
-  const options = topic.questions[question_no].options;
-
-  const optionHTML = options
-    .map((option) => {
-      return `<li>
-    <button class="option">${option}</button>
+  document.querySelector(".current-question").textContent = questionData.id;
+  //  Question
+  document.querySelector(".question-text").textContent = questionData.question;
+  //  Options
+  const optionHTML = questionData.options
+    .map((option, index) => {
+      const escapedOption = option.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return `<li class="choice">
+    <button class="option" data-index="${index}">${escapedOption}</button>
   </li>`;
     })
     .join("");
-  console.log(optionHTML);
-  document.querySelector(".options-list").innerHTML = optionHTML;
+  optionsList.innerHTML = optionHTML;
+
+  const allOptions = optionsList.querySelectorAll(".option");
+  allOptions.forEach((option) => {
+    option.disabled = false;
+    option.classList.remove("correct", "incorrect");
+  });
 };
 
+const checkAnswer = function (e) {
+  const clickedButton = e.target.closest(".option");
+  if (!clickedButton) return;
+
+  const selectedAnswerIndex = parseInt(clickedButton.dataset.index, 10);
+  const correctAnswerIndex =
+    currentTopic.questions[currentQuestionIndex].answer;
+
+  if (selectedAnswerIndex === correctAnswerIndex) {
+    console.log("Correct!");
+    currentScore += 2;
+    score.textContent = currentScore;
+    clickedButton.classList.add("correct");
+  } else {
+    console.log("Incorrect!");
+    clickedButton.classList.add("incorrect");
+
+    const correctButton = optionsList.querySelector(
+      `[data-index="${correctAnswerIndex}"]`
+    );
+    if (correctButton) {
+      correctButton.classList.add("correct");
+    }
+  }
+  const allOptions = optionsList.querySelectorAll(".option");
+  allOptions.forEach((option) => (option.disabled = true));
+
+  // Show the next button so the user can proceed
+  nextBtn.classList.remove("hidden");
+};
+
+const nextQuestion = function () {
+  currentQuestionIndex++;
+  if (currentQuestionIndex < currentTopic.questions.length) {
+    displayQuestion();
+  } else {
+    alert(
+      "Quiz Finished! You have completed all the questions for this topic."
+    );
+
+    nextBtn.classList.add("hidden");
+  }
+};
 // Event Listeners
 startBtn.addEventListener("click", displayQuiz);
-
-console.log(questions[0]);
+nextBtn.addEventListener("click", nextQuestion);
+optionsList.addEventListener("click", checkAnswer);
